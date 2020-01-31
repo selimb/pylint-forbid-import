@@ -1,0 +1,7 @@
+{
+    "python.formatting.provider": "black",
+    "python.linting.mypyEnabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.testing.pytestEnabled": true,
+    "python.pythonPath": "C:\\Users\\selim\\AppData\\Local\\pypoetry\\Cache\\virtualenvs\\pylint-forbid-import-py3.7\\Scripts\\python.exe",
+}

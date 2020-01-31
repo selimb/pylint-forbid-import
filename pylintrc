@@ -1,0 +1,17 @@
+[MESSAGES CONTROL]
+disable=format,  ; handled by black
+        missing-docstring,
+        invalid-name,  ; too restrictive. names like 'e' in a list comprehension can be fine
+        design,  ; can robots really judge design?
+        duplicate-code,  ; too many false positives
+        wrong-import-order,  ; handled by isort
+        cyclic-import,  ; import will crash very quickly if it's an issue
+        logging-format-interpolation  ; https://github.com/PyCQA/pylint/issues/1788
+
+[MISCELLANEOUS]
+; Allow using TODO for enhancements, but use XXX/FIXME for "I'll get back to this"
+notes=FIXME,XXX
+
+[REPORTS]
+reports=no
+score=no
