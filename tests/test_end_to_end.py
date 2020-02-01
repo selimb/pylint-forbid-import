@@ -1,3 +1,4 @@
+import os.path
 import pathlib
 import subprocess
 
@@ -18,17 +19,23 @@ forbid-import= include : app.* : xml\.etree,
 score=no
 """
 
-EXPECTED = r"""
+# NOTE: Paths are POSIX-style, and the actual output is normalized in the test
+EXPECTED = """
 ************* Module app
-app\__init__.py:1:0: E9001: Importing xml.etree.ElementInclude from app is forbidden. (forbidden-import)
-app\__init__.py:1:0: E9001: Importing xml.etree.ElementPath from app is forbidden. (forbidden-import)
-app\__init__.py:2:0: E9001: Importing os from app is forbidden. (forbidden-import)
+app/__init__.py:1:0: E9001: Importing xml.etree.ElementInclude from app is forbidden. (forbidden-import)
+app/__init__.py:1:0: E9001: Importing xml.etree.ElementPath from app is forbidden. (forbidden-import)
+app/__init__.py:2:0: E9001: Importing os from app is forbidden. (forbidden-import)
 ************* Module app.one
-app\one.py:1:0: E9001: Importing xml.etree from app.one is forbidden. (forbidden-import)
+app/one.py:1:0: E9001: Importing xml.etree from app.one is forbidden. (forbidden-import)
 ************* Module app.two
-app\two.py:1:0: E9001: Importing xml.etree from app.two is forbidden. (forbidden-import)
-app\two.py:2:0: E9001: Importing os.path from app.two is forbidden. (forbidden-import)
+app/two.py:1:0: E9001: Importing xml.etree from app.two is forbidden. (forbidden-import)
+app/two.py:2:0: E9001: Importing os.path from app.two is forbidden. (forbidden-import)
 """.strip()
+
+
+def normalize_paths(pylint_output: str) -> str:
+    # Assume path separator characters are only used in paths
+    return pylint_output.replace(os.path.sep, "/")
 
 
 def write(path: pathlib.Path, *lines: str) -> None:
@@ -51,4 +58,5 @@ def test_checker_from_cli(tmp_path: pathlib.Path) -> None:
     completed = subprocess.run(
         ["pylint", "app"], cwd=tmp_path, text=True, capture_output=True, check=False
     )
-    assert completed.stdout.strip() == EXPECTED
+    output = normalize_paths(completed.stdout.strip())
+    assert output == EXPECTED
