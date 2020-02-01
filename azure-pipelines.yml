@@ -1,0 +1,63 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+  - master
+
+jobs:
+  - job: Lint
+    pool:
+      vmImage: "ubuntu-latest"
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "3.8"
+        displayName: "Use Python 3.8"
+
+      - script: |
+          python -m pip install --upgrade pip poetry
+          poetry config virtualenvs.create false
+          poetry install
+        displayName: Install Dependencies
+
+      - script: make lint
+        displayName: Lint
+
+      - script: make mypy
+        displayName: Type Check
+
+  - job: Test
+    strategy:
+      matrix:
+        Windows Py37:
+          python.version: "3.7"
+          imageName: "windows-latest"
+        Windows Py38:
+          python.version: "3.8"
+          imageName: "windows-latest"
+        Linux Py37:
+          python.version: "3.7"
+          imageName: "ubuntu-latest"
+        Linux Py38:
+          python.version: "3.8"
+          imageName: "ubuntu-latest"
+    pool:
+      vmImage: $(imageName)
+
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "$(python.version)"
+        displayName: "Use Python $(python.version)"
+
+      - script: |
+          python -m pip install --upgrade pip poetry
+          poetry config virtualenvs.create false
+          poetry install
+        displayName: Install Dependencies
+
+      - script: make test
+        displayName: Run tests
